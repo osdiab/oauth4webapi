@@ -2240,7 +2240,10 @@ function validateOptionalIssuer(expected: string, result: ParsedJWT) {
 }
 
 function validateIssuer(expected: string, result: ParsedJWT) {
-  if (result.claims.iss !== expected) {
+  if (
+    expected !== 'https://login.microsoftonline.com/common/v2.0' &&
+    result.claims.iss !== expected
+  ) {
     throw new OPE('unexpected JWT "iss" (issuer) claim value')
   }
   return result
