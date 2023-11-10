@@ -2239,14 +2239,21 @@ function validateOptionalIssuer(expected: string, result: ParsedJWT) {
   return result
 }
 
+const azureAdIssuerRegexes = [
+  /^https:\/\/login\.microsoftonline\.com\/[a-zA-Z0-9-]+\/v2\.0\/?$/,
+  /^https:\/\/sts\.windows\.net\/[a-zA-Z0-9-]+\/?$/,
+]
 function validateIssuer(expected: string, result: ParsedJWT) {
-  if (
-    expected !== 'https://login.microsoftonline.com/common/v2.0' &&
-    result.claims.iss !== expected
-  ) {
-    throw new OPE('unexpected JWT "iss" (issuer) claim value')
+  if (result.claims.iss === expected) {
+    return result
   }
-  return result
+  if (
+    expected === 'https://login.microsoftonline.com/common/v2.0' &&
+    azureAdIssuerRegexes.find((regex) => result.claims.iss && regex.test(result.claims.iss))
+  ) {
+    return result
+  }
+  throw new OPE('unexpected JWT "iss" (issuer) claim value')
 }
 
 const branded = new WeakSet<URLSearchParams>()
