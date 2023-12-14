@@ -2239,19 +2239,14 @@ function validateOptionalIssuer(expected: string, result: ParsedJWT) {
   return result
 }
 
-const azureAdIssuerRegexes = [
-  /^https:\/\/login\.microsoftonline\.com\/[a-zA-Z0-9-]+\/v2\.0\/?$/,
-  /^https:\/\/sts\.windows\.net\/[a-zA-Z0-9-]+\/?$/,
-]
 function validateIssuer(expected: string, result: ParsedJWT) {
   if (result.claims.iss === expected) {
     return result
   }
-  if (
-    expected === 'https://login.microsoftonline.com/common/v2.0' &&
-    azureAdIssuerRegexes.find((regex) => result.claims.iss && regex.test(result.claims.iss))
-  ) {
-    return result
+ if (expected === 'https://login.microsoftonline.com/common/v2.0'
+    && result.claims.tid !== undefined
+    && result.claims.iss === `https://login.microsoftonline.com/${result.claims.tid}/v2.0`) {
+    return result;
   }
   throw new OPE('unexpected JWT "iss" (issuer) claim value')
 }
